@@ -149,40 +149,6 @@ const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
 
 ---
 
-## 🌐 Deployment
-
-### Deploy to Vercel (Recommended)
-
-**Option 1: Automatic via GitHub**
-1. Push code to GitHub (already done: `prajwal-vl/dragend`)
-2. Go to [vercel.com](https://vercel.com)
-3. Click "Add New" → "Project"
-4. Import your GitHub repository
-5. Vercel auto-detects Vite configuration
-6. Click "Deploy"
-
-**Option 2: Using Vercel CLI**
-```bash
-npm i -g vercel
-vercel --prod
-```
-
-**Vercel Configuration** (`vercel.json`):
-```json
-{
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install"
-}
-```
-
-### Deploy to Other Platforms
-
-- **Netlify**: Same as Vercel (connect GitHub repo)
-- **GitHub Pages**: Configure GitHub Actions
-- **Docker**: Create Dockerfile and deploy to your server
-
----
 
 ## 🔧 Available Scripts
 
