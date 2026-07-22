@@ -31,6 +31,7 @@ import robotWalk from "@/assets/robot-walk.jpg";
 import robotDatabase from "@/assets/robot-database.jpg";
 import robotDeploy from "@/assets/robot-deploy.jpg";
 import robotPortal from "@/assets/robot-portal.jpg";
+import appLogo from "@/assets/logo.png";
 
 export const Route = createFileRoute("/")({
   component: DragendLanding,
@@ -180,7 +181,6 @@ function Nav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
         <div className="flex items-center gap-2 rounded-full px-4 py-2">
           <Logo />
-          <span className="font-display text-lg font-bold tracking-tight">DRAGEND</span>
         </div>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#build" className="transition hover:text-foreground">Build</a>
@@ -205,11 +205,8 @@ function Nav() {
 
 function Logo() {
   return (
-    <div className="relative grid h-7 w-7 place-items-center rounded-md bg-gradient-to-br from-primary to-primary-glow shadow-neon">
-      <svg viewBox="0 0 24 24" className="h-4 w-4 text-white" fill="none" stroke="currentColor" strokeWidth="2.5">
-        <path d="M4 6l6-3 10 5-6 3z" strokeLinejoin="round" />
-        <path d="M4 12l10 5 6-3M4 18l10 5 6-3" strokeLinejoin="round" />
-      </svg>
+    <div className="relative flex items-center h-8">
+      <img src={appLogo} alt="DeployForge Logo" className="h-full w-auto object-contain" />
     </div>
   );
 }
@@ -237,7 +234,7 @@ function Hero() {
       >
         <img
           src={heroRobot}
-          alt="DRAGEND robot mascot in a dreamy sunset flower field"
+          alt="DEPLOYFORGE robot mascot in a dreamy sunset flower field"
           className="h-full w-full object-cover"
           width={1600}
           height={1200}
@@ -793,7 +790,7 @@ function AiAgent() {
             <div className="glass-strong rounded-3xl p-6 font-mono text-sm">
               <div className="mb-4 flex items-center gap-2 text-xs uppercase tracking-widest text-muted-foreground">
                 <Cpu className="h-4 w-4 text-primary" />
-                <span>dragend / ai-agent</span>
+                <span>deployforge / ai-agent</span>
                 <span className="ml-auto flex items-center gap-1.5 text-emerald-400">
                   <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
                   live
@@ -976,7 +973,7 @@ function Deploy() {
                 <div>
                   <div className="font-mono text-sm text-emerald-300">Deployed successfully</div>
                   <div className="font-mono text-xs text-muted-foreground">
-                    https://api.dragend.dev · edge · 12 regions
+                    https://api.deployforge.dev · edge · 12 regions
                   </div>
                 </div>
               </motion.div>
@@ -1115,7 +1112,7 @@ function Ending() {
           </span>
         </h2>
         <div className="mt-8 font-display text-2xl tracking-tight text-muted-foreground">
-          DRAGEND · Drag. Drop. Deploy.
+          DEPLOYFORGE · Automation Platform.
         </div>
         <a
           href="#"
@@ -1139,7 +1136,7 @@ function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
         <div className="flex items-center gap-2">
           <Logo />
-          <span className="font-display text-sm font-bold">DRAGEND</span>
+          <span className="font-display text-sm font-bold">DEPLOYFORGE</span>
           <span className="ml-3 text-xs text-muted-foreground">© 2026</span>
         </div>
         <div className="text-xs text-muted-foreground">

@@ -77,13 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DRAGEND — Drag. Drop. Deploy. The visual backend builder." },
+      { title: "DEPLOYFORGE — Automation Platform. The visual backend builder." },
       {
         name: "description",
         content:
-          "DRAGEND is a visual backend builder. Design databases, connect APIs, and deploy production-ready systems by dragging and dropping.",
+          "DEPLOYFORGE is an automation platform. Design databases, connect APIs, and deploy production-ready systems by dragging and dropping.",
       },
-      { property: "og:title", content: "DRAGEND — Drag. Drop. Deploy." },
+      { property: "og:title", content: "DEPLOYFORGE — Automation Platform" },
       {
         property: "og:description",
         content:
