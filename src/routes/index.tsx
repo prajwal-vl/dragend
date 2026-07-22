@@ -80,9 +80,8 @@ function Ambient() {
   }, [mx, my]);
 
   const bg = useTransform(
-    [smx, smy] as unknown as MotionValue<number>[],
-    // @ts-expect-error framer typings for combined MotionValues
-    ([x, y]: [number, number]) =>
+    [smx, smy],
+    ([x, y]: number[]) =>
       `radial-gradient(600px circle at ${x}% ${y}%, oklch(0.66 0.22 295 / 0.18), transparent 60%)`,
   );
 
@@ -172,16 +171,14 @@ function Nav() {
   }, []);
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled ? "py-3" : "py-6"
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b ${
+        scrolled
+          ? "py-3 bg-black/60 backdrop-blur-xl border-white/10 shadow-2xl"
+          : "py-6 bg-transparent border-transparent shadow-none"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
-        <div
-          className={`flex items-center gap-2 rounded-full px-4 py-2 transition-all ${
-            scrolled ? "glass" : ""
-          }`}
-        >
+        <div className="flex items-center gap-2 rounded-full px-4 py-2">
           <Logo />
           <span className="font-display text-lg font-bold tracking-tight">DRAGEND</span>
         </div>
@@ -308,21 +305,7 @@ function Hero() {
           </a>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 text-xs uppercase tracking-widest text-muted-foreground"
-        >
-          <div className="flex flex-col items-center gap-2">
-            <span>scroll to unfold</span>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity }}
-              className="h-6 w-px bg-gradient-to-b from-primary to-transparent"
-            />
-          </div>
-        </motion.div>
+
       </motion.div>
     </section>
   );
@@ -423,108 +406,104 @@ const DB_FIELDS = [
 ];
 
 function CreateDatabase() {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
+    target: containerRef,
+    offset: ["start start", "end end"],
   });
   const [visibleFields, setVisibleFields] = useState(0);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    const count = Math.min(DB_FIELDS.length, Math.floor(v * 8));
+    const start = 0.2;
+    const end = 0.8;
+    const progress = Math.max(0, Math.min(1, (v - start) / (end - start)));
+    const count = Math.min(DB_FIELDS.length, Math.floor(progress * (DB_FIELDS.length + 1)));
     setVisibleFields(count);
   });
 
-  const cardScale = useTransform(scrollYProgress, [0, 0.4, 1], [0.85, 1, 1.05]);
-  const cardY = useTransform(scrollYProgress, [0, 1], [80, -60]);
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [25, 0, -25]);
+  const rotateY = useTransform(scrollYProgress, [0, 0.5, 1], [-25, 0, 25]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.1, 0.9]);
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
 
   return (
-    <section id="build" ref={ref} className="relative min-h-[130vh] overflow-hidden py-32">
-      <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10">
-        <img
-          src={robotDatabase}
-          alt="Robot presenting a holographic database"
-          className="h-full w-full object-cover opacity-50"
-          loading="lazy"
-          width={1600}
-          height={1200}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/30 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
-      </motion.div>
-      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-2">
-        <div>
-          <SectionEyebrow>Chapter 03 — Design</SectionEyebrow>
-          <h2 className="mt-4 font-display text-5xl font-bold tracking-tight text-balance md:text-6xl">
-            Drag a{" "}
-            <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
-              database
-            </span>{" "}
-            into existence.
-          </h2>
-          <p className="mt-6 max-w-md text-lg text-muted-foreground">
-            Fields materialize as you place them. Types, indexes, and relations light up in
-            purple as the schema takes shape.
-          </p>
-          <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
-            {["Type-safe schemas", "Auto-generated migrations", "Live relation graph"].map((f) => (
-              <li key={f} className="flex items-center gap-3">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/20 text-primary">
-                  <Check className="h-3 w-3" />
-                </span>
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <motion.div style={{ scale: cardScale, y: cardY }} className="relative">
-          <div className="absolute inset-0 -z-10 rounded-3xl bg-primary/30 blur-3xl" />
-          <div className="glass-strong overflow-hidden rounded-3xl">
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-3">
-              <div className="flex items-center gap-2">
-                <Database className="h-4 w-4 text-primary" />
-                <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
-                  users
-                </span>
-              </div>
-              <div className="flex gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-white/20" />
-                <span className="h-2 w-2 rounded-full bg-white/20" />
-                <span className="h-2 w-2 rounded-full bg-primary shadow-neon" />
-              </div>
-            </div>
-            <div className="divide-y divide-white/5 p-2">
-              {DB_FIELDS.map((f, i) => (
-                <motion.div
-                  key={f.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={
-                    i < visibleFields
-                      ? { opacity: 1, x: 0 }
-                      : { opacity: 0.15, x: -20 }
-                  }
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="flex items-center justify-between rounded-xl px-4 py-3 hover:bg-white/5"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="h-2 w-2 rounded-full bg-primary shadow-neon" />
-                    <span className="font-mono text-sm text-foreground">{f.name}</span>
-                  </div>
-                  <span className="font-mono text-xs text-muted-foreground">{f.type}</span>
-                </motion.div>
+    <section id="build" ref={containerRef} className="relative h-[300vh] bg-background">
+      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
+        <motion.div style={{ opacity }} className="mx-auto grid max-w-7xl w-full grid-cols-1 items-center gap-16 px-6 lg:grid-cols-2">
+          <div>
+            <SectionEyebrow>Chapter 03 — Design</SectionEyebrow>
+            <h2 className="mt-4 font-display text-5xl font-bold tracking-tight text-balance md:text-6xl">
+              Drag a{" "}
+              <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
+                database
+              </span>{" "}
+              into existence.
+            </h2>
+            <p className="mt-6 max-w-md text-lg text-muted-foreground">
+              Fields materialize as you place them. Types, indexes, and relations light up in
+              purple as the schema takes shape.
+            </p>
+            <ul className="mt-8 space-y-3 text-sm text-muted-foreground">
+              {["Type-safe schemas", "Auto-generated migrations", "Live relation graph"].map((f) => (
+                <li key={f} className="flex items-center gap-3">
+                  <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/20 text-primary">
+                    <Check className="h-3 w-3" />
+                  </span>
+                  {f}
+                </li>
               ))}
-              <motion.div
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="mt-1 flex items-center justify-center rounded-xl border border-dashed border-white/15 py-3 text-xs text-muted-foreground"
-              >
-                + Add Field
-              </motion.div>
-            </div>
+            </ul>
           </div>
 
+          <motion.div
+            style={{ scale, rotateX, rotateY, transformStyle: "preserve-3d", perspective: 1000 }}
+            className="relative"
+          >
+            <div className="absolute inset-0 -z-10 rounded-3xl bg-primary/30 blur-3xl" />
+            <div className="glass-strong overflow-hidden rounded-3xl border border-white/20 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 bg-black/40 px-5 py-3">
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-primary" />
+                  <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                    users
+                  </span>
+                </div>
+                <div className="flex gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-white/20" />
+                  <span className="h-2 w-2 rounded-full bg-white/20" />
+                  <span className="h-2 w-2 rounded-full bg-primary shadow-neon" />
+                </div>
+              </div>
+              <div className="divide-y divide-white/5 p-2 bg-black/20">
+                {DB_FIELDS.map((f, i) => (
+                  <motion.div
+                    key={f.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={
+                      i < visibleFields
+                        ? { opacity: 1, x: 0 }
+                        : { opacity: 0.15, x: -20 }
+                    }
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex items-center justify-between rounded-xl px-4 py-3 hover:bg-white/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="h-2 w-2 rounded-full bg-primary shadow-neon" />
+                      <span className="font-mono text-sm text-foreground">{f.name}</span>
+                    </div>
+                    <span className="font-mono text-xs text-muted-foreground">{f.type}</span>
+                  </motion.div>
+                ))}
+                <motion.div
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="mt-1 flex items-center justify-center rounded-xl border border-dashed border-white/15 py-3 text-xs text-muted-foreground"
+                >
+                  + Add Field
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
@@ -550,114 +529,125 @@ const EDGES: [string, string][] = [
   ["api", "ai"], ["api", "queue"], ["queue", "notify"], ["ai", "notify"],
 ];
 
+function EdgeLine({ na, nb, index, progress }: { na: any; nb: any; index: number; progress: MotionValue<number> }) {
+  const start = 0.4 + (index * 0.05);
+  const end = start + 0.15;
+  const pathLength = useTransform(progress, [start, end], [0, 1]);
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+
+  return (
+    <motion.line
+      x1={na.x}
+      y1={na.y}
+      x2={nb.x}
+      y2={nb.y}
+      stroke="url(#beam)"
+      strokeWidth="0.4"
+      filter="url(#glow)"
+      style={{ pathLength, opacity }}
+    />
+  );
+}
+
+function NodeElement({ node, index, progress }: { node: any; index: number; progress: MotionValue<number> }) {
+  const start = 0.1 + (index * 0.04);
+  const end = 0.4;
+  
+  const x = useTransform(progress, [start, end], ["50%", `${node.x}%`]);
+  const y = useTransform(progress, [start, end], ["50%", `${node.y}%`]);
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const scale = useTransform(progress, [start, end], [0.5, 1]);
+
+  const Icon = node.icon;
+
+  return (
+    <motion.div
+      className="absolute -translate-x-1/2 -translate-y-1/2"
+      style={{ left: x, top: y, opacity, scale }}
+      whileHover={{ scale: 1.15, zIndex: 10 }}
+    >
+      <div className="glass flex items-center gap-2 rounded-2xl px-4 py-3 shadow-neon border border-white/20 bg-black/40 backdrop-blur-md">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-white">
+          <Icon className="h-4 w-4" />
+        </span>
+        <span className="text-sm font-medium">{node.label}</span>
+      </div>
+    </motion.div>
+  );
+}
+
 function BuilderGraph() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
-  const rotate = useTransform(scrollYProgress, [0, 1], [-4, 4]);
-  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.9, 1, 1.05]);
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
+  
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.6, 1.05, 0.9]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [-10, 10]);
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
 
   const nodeById = Object.fromEntries(NODES.map((n) => [n.id, n]));
 
   return (
-    <section ref={ref} className="relative min-h-[140vh] overflow-hidden py-32">
-      <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10">
-        <img
-          src={robotPortal}
-          alt="Portal connecting everything"
-          className="h-full w-full object-cover opacity-40"
-          loading="lazy"
-          width={1600}
-          height={1200}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/30 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/40 via-transparent to-background/40" />
-      </motion.div>
-      <div className="relative z-10">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-2xl text-center">
-          <SectionEyebrow>Chapter 04 — Connect Everything</SectionEyebrow>
-          <h2 className="mt-4 font-display text-5xl font-bold tracking-tight text-balance md:text-6xl">
-            Every connection is a{" "}
-            <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
-              beam of light.
-            </span>
-          </h2>
-          <p className="mt-6 text-lg text-muted-foreground">
-            Drop a component, drag a wire. The graph comes alive.
-          </p>
-        </div>
-
-        <motion.div
-          style={{ rotate, scale }}
-          className="relative mx-auto mt-20 aspect-[16/10] w-full max-w-5xl"
-        >
-          <div className="glass-strong absolute inset-0 rounded-3xl" />
-          <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_50%_50%,oklch(0.66_0.22_295/0.15),transparent_60%)]" />
-
-          {/* Edges */}
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="beam" x1="0" x2="1">
-                <stop offset="0%" stopColor="oklch(0.78 0.19 300)" stopOpacity="0.1" />
-                <stop offset="50%" stopColor="oklch(0.78 0.19 300)" stopOpacity="1" />
-                <stop offset="100%" stopColor="oklch(0.78 0.19 300)" stopOpacity="0.1" />
-              </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="0.6" result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            {EDGES.map(([a, b], i) => {
-              const na = nodeById[a];
-              const nb = nodeById[b];
-              return (
-                <motion.line
-                  key={`${a}-${b}`}
-                  x1={na.x}
-                  y1={na.y}
-                  x2={nb.x}
-                  y2={nb.y}
-                  stroke="url(#beam)"
-                  strokeWidth="0.3"
-                  filter="url(#glow)"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  whileInView={{ pathLength: 1, opacity: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 1.2, delay: i * 0.15, ease: "easeInOut" }}
-                />
-              );
-            })}
-          </svg>
-
-          {/* Nodes */}
-          {NODES.map((n, i) => (
-            <motion.div
-              key={n.id}
-              initial={{ opacity: 0, scale: 0.5, y: 20 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6, delay: i * 0.08, ease: [0.2, 0.7, 0.2, 1] }}
-              whileHover={{ scale: 1.1, y: -4 }}
-              className="absolute -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${n.x}%`, top: `${n.y}%` }}
-            >
-              <div className="glass flex items-center gap-2 rounded-2xl px-4 py-3 shadow-neon">
-                <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-primary-glow text-white">
-                  <n.icon className="h-4 w-4" />
-                </span>
-                <span className="text-sm font-medium">{n.label}</span>
+    <section ref={ref} className="relative h-[350vh] bg-background">
+      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
+        <motion.div style={{ opacity }} className="relative z-10 w-full">
+          <div className="mx-auto max-w-7xl px-6 pt-16 md:pt-0">
+            <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+              <div>
+                <SectionEyebrow>Chapter 04 — Connect Everything</SectionEyebrow>
+                <h2 className="mt-4 font-display text-4xl font-bold tracking-tight text-balance md:text-5xl lg:text-6xl">
+                  Every connection is a{" "}
+                  <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
+                    beam of light.
+                  </span>
+                </h2>
+                <p className="mt-4 text-base text-muted-foreground md:mt-6 md:text-lg">
+                  Drop a component, drag a wire. The graph comes alive.
+                </p>
               </div>
+
+              <motion.div
+                style={{ rotate, scale }}
+                className="relative mx-auto w-full h-[45vh] md:h-[55vh]"
+              >
+              <div className="glass-strong absolute inset-0 rounded-3xl border border-white/10" />
+              <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_50%_50%,oklch(0.66_0.22_295/0.15),transparent_60%)]" />
+
+              {/* Edges */}
+              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="beam" x1="0" x2="1">
+                    <stop offset="0%" stopColor="oklch(0.78 0.19 300)" stopOpacity="0.1" />
+                    <stop offset="50%" stopColor="oklch(0.78 0.19 300)" stopOpacity="1" />
+                    <stop offset="100%" stopColor="oklch(0.78 0.19 300)" stopOpacity="0.1" />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="0.6" result="b" />
+                    <feMerge>
+                      <feMergeNode in="b" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                {EDGES.map(([a, b], i) => {
+                  const na = nodeById[a];
+                  const nb = nodeById[b];
+                  return (
+                    <EdgeLine key={`${a}-${b}`} na={na} nb={nb} index={i} progress={scrollYProgress} />
+                  );
+                })}
+              </svg>
+
+              {/* Nodes */}
+              {NODES.map((n, i) => (
+                <NodeElement key={n.id} node={n} index={i} progress={scrollYProgress} />
+              ))}
             </motion.div>
-          ))}
+            </div>
+          </div>
         </motion.div>
-      </div>
       </div>
     </section>
   );
@@ -946,72 +936,66 @@ function RealtimePreview() {
 /* -------------------------------------------------------------------------- */
 
 function Deploy() {
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
+    target: containerRef,
+    offset: ["start start", "end end"],
   });
-  const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1.5, 0.6]);
-  const scale = useTransform(scrollYProgress, [0, 0.6], [0.8, 1]);
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-20%", "20%"]);
+  
+  const glow = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1.5, 0.6]);
+  const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1.2, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);
+  const textY = useTransform(scrollYProgress, [0, 0.5], [40, 0]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.5], [0, 1]);
 
   return (
-    <section id="deploy" ref={ref} className="relative overflow-hidden py-32">
-      <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10">
-        <img
-          src={robotDeploy}
-          alt="Robot deploying to the cloud"
-          className="h-full w-full object-cover opacity-50"
-          loading="lazy"
-          width={1600}
-          height={1200}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-transparent to-background/30" />
-      </motion.div>
-      <motion.div
-        style={{ opacity: glow }}
-        className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40 blur-[120px]"
-      />
-      <div className="relative z-20 mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
-          <div>
-            <SectionEyebrow>Chapter 08 — Deploy</SectionEyebrow>
-            <h2 className="mt-4 font-display text-5xl font-bold tracking-tight text-balance md:text-6xl">
-              One click.{" "}
-              <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
-                Live everywhere.
-              </span>
-            </h2>
-            <p className="mt-6 max-w-md text-lg text-muted-foreground">
-              Ship to the edge in seconds. Zero config, global cache, autoscaling, and rollback in a
-              single tap.
-            </p>
-            <div className="mt-8 flex items-center gap-3">
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 1.8, repeat: Infinity }}
-                className="grid h-14 w-14 place-items-center rounded-full bg-emerald-500/20 text-emerald-400"
-              >
-                <Check className="h-7 w-7" />
-              </motion.div>
-              <div>
-                <div className="font-mono text-sm text-emerald-300">Deployed successfully</div>
-                <div className="font-mono text-xs text-muted-foreground">
-                  https://api.dragend.dev · edge · 12 regions
+    <section id="deploy" ref={containerRef} className="relative h-[250vh] bg-background">
+      <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden">
+        <motion.div style={{ opacity }} className="relative z-20 w-full mx-auto max-w-7xl px-6">
+          <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2">
+            <div>
+              <SectionEyebrow>Chapter 08 — Deploy</SectionEyebrow>
+              <h2 className="mt-4 font-display text-5xl font-bold tracking-tight text-balance md:text-6xl">
+                One click.{" "}
+                <span className="bg-gradient-to-br from-primary-glow to-primary bg-clip-text text-transparent">
+                  Live everywhere.
+                </span>
+              </h2>
+              <p className="mt-6 max-w-md text-lg text-muted-foreground">
+                Ship to the edge in seconds. Zero config, global cache, autoscaling, and rollback in a
+                single tap.
+              </p>
+              <motion.div style={{ y: textY, opacity: textOpacity }} className="mt-8 flex items-center gap-3">
+                <motion.div
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 1.8, repeat: Infinity }}
+                  className="grid h-14 w-14 place-items-center rounded-full bg-emerald-500/20 text-emerald-400"
+                >
+                  <Check className="h-7 w-7" />
+                </motion.div>
+                <div>
+                  <div className="font-mono text-sm text-emerald-300">Deployed successfully</div>
+                  <div className="font-mono text-xs text-muted-foreground">
+                    https://api.dragend.dev · edge · 12 regions
+                  </div>
                 </div>
-              </div>
+              </motion.div>
+            </div>
+
+            <div className="relative mx-auto">
+              <motion.div
+                style={{ opacity: glow }}
+                className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40 blur-[100px] -z-10"
+              />
+              <motion.div style={{ scale }} className="relative rounded-3xl overflow-hidden shadow-neon bg-black/40 backdrop-blur-md">
+                <div className="absolute inset-0 rounded-3xl ring-1 ring-white/20" />
+                <div className="h-64 w-64 rounded-3xl bg-gradient-to-br from-primary/30 to-transparent flex items-center justify-center">
+                  <Cloud className="h-16 w-16 text-primary" />
+                </div>
+              </motion.div>
             </div>
           </div>
-
-          <motion.div style={{ scale }} className="relative mx-auto">
-            <div className="relative rounded-3xl overflow-hidden">
-              <div className="absolute inset-0 rounded-3xl bg-primary/40 blur-3xl -z-10" />
-              <div className="absolute inset-0 rounded-3xl ring-1 ring-white/20" />
-              <div className="h-48 w-48 rounded-3xl bg-gradient-to-br from-primary/30 to-transparent" />
-            </div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
@@ -1045,8 +1029,8 @@ function FeaturesOrbit() {
     <section id="features" ref={ref} className="relative overflow-hidden py-32">
       <motion.div style={{ y: bgY, scale: bgScale }} className="absolute inset-0 -z-10">
         <img
-          src={robotPortal}
-          alt="Features orbiting the portal"
+          src={robotDatabase}
+          alt="Features orbiting the database"
           className="h-full w-full object-cover opacity-35"
           loading="lazy"
           width={1600}
