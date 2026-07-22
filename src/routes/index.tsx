@@ -1181,12 +1181,35 @@ function Footer() {
 /* Page                                                                        */
 /* -------------------------------------------------------------------------- */
 
+function ScrollIndicator() {
+  const { scrollYProgress } = useScroll();
+  // Fade out before the final chapter (between 85% and 95% of total scroll)
+  const opacity = useTransform(scrollYProgress, [0.85, 0.92], [1, 0]);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="pointer-events-none fixed bottom-0 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-3 pb-8"
+    >
+      <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30">
+        Scroll
+      </span>
+      <motion.div
+        animate={{ y: [0, 8, 0], opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        className="h-12 w-[1px] bg-gradient-to-b from-white/30 to-transparent"
+      />
+    </motion.div>
+  );
+}
+
 function DragendLanding() {
   useLenis();
   return (
     <main className="relative min-h-screen bg-background text-foreground">
       <Ambient />
       <Nav />
+      <ScrollIndicator />
       <div className="relative z-10">
         <Hero />
         <RobotWalk />
