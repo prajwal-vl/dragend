@@ -48,6 +48,8 @@ function useLenis() {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
     });
+    // @ts-expect-error expose lenis for click handlers
+    window.lenis = lenis;
     let raf = 0;
     const loop = (time: number) => {
       lenis.raf(time);
@@ -180,8 +182,13 @@ function Nav() {
       const offset = isScrollySection ? window.innerHeight : 0;
       const targetPosition = target.getBoundingClientRect().top + window.scrollY;
       
-      // Jump instantly so the user doesn't have to watch the scroll animations play rapidly
-      window.scrollTo({ top: targetPosition + offset, behavior: "instant" });
+      // @ts-expect-error window.lenis might not be typed
+      if (window.lenis) {
+        // @ts-expect-error
+        window.lenis.scrollTo(targetPosition + offset, { immediate: true });
+      } else {
+        window.scrollTo({ top: targetPosition + offset, behavior: "instant" });
+      }
       window.history.pushState(null, "", `#${id}`);
     }
   };
