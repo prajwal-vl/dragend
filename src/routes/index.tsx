@@ -175,10 +175,13 @@ function Nav() {
     e.preventDefault();
     const target = document.getElementById(id);
     if (target) {
-      // Scrollytelling sections use 300vh space, scroll to offsetTop + 100vh to land in the fully visible middle state
       const isScrollySection = ['build', 'ai', 'deploy'].includes(id);
+      // For scrollytelling sections, jump directly to the point where the animation is fully expanded
       const offset = isScrollySection ? window.innerHeight : 0;
-      window.scrollTo({ top: target.offsetTop + offset, behavior: "smooth" });
+      const targetPosition = target.getBoundingClientRect().top + window.scrollY;
+      
+      // Jump instantly so the user doesn't have to watch the scroll animations play rapidly
+      window.scrollTo({ top: targetPosition + offset, behavior: "instant" });
       window.history.pushState(null, "", `#${id}`);
     }
   };
