@@ -177,8 +177,8 @@ function Nav() {
     e.preventDefault();
     const target = document.getElementById(id);
     if (target) {
-      const isScrollySection = ['build', 'ai', 'deploy'].includes(id);
-      // For scrollytelling sections, jump directly to the point where the animation is fully expanded
+      // Only 'build' and 'deploy' are h-[300vh] / h-[250vh] scrollytelling sections
+      const isScrollySection = ['build', 'deploy'].includes(id);
       const offset = isScrollySection ? window.innerHeight : 0;
       const targetPosition = target.getBoundingClientRect().top + window.scrollY;
       
@@ -189,6 +189,12 @@ function Nav() {
       } else {
         window.scrollTo({ top: targetPosition + offset, behavior: "instant" });
       }
+      
+      // Force framer-motion to update its useScroll values after an instant jump
+      setTimeout(() => {
+        window.dispatchEvent(new Event('scroll'));
+      }, 50);
+
       window.history.pushState(null, "", `#${id}`);
     }
   };
