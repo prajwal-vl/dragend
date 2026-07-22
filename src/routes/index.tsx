@@ -1189,15 +1189,15 @@ function ScrollIndicator() {
   return (
     <motion.div
       style={{ opacity }}
-      className="pointer-events-none fixed bottom-0 left-1/2 z-40 flex -translate-x-1/2 flex-col items-center gap-3 pb-8"
+      className="pointer-events-none fixed bottom-12 right-8 z-40 flex flex-col items-center gap-3 md:right-12"
     >
-      <span className="font-mono text-[9px] uppercase tracking-[0.4em] text-white/30">
+      <span className="font-mono text-[10px] font-bold uppercase tracking-[0.4em] text-white/70">
         Scroll
       </span>
       <motion.div
-        animate={{ y: [0, 8, 0], opacity: [0.2, 0.5, 0.2] }}
+        animate={{ y: [0, 8, 0], opacity: [0.4, 0.8, 0.4] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-        className="h-12 w-[1px] bg-gradient-to-b from-white/30 to-transparent"
+        className="h-16 w-[2px] bg-gradient-to-b from-white/60 to-transparent"
       />
     </motion.div>
   );
