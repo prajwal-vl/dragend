@@ -170,6 +170,19 @@ function Nav() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    const target = document.getElementById(id);
+    if (target) {
+      // Scrollytelling sections use 300vh space, scroll to offsetTop + 100vh to land in the fully visible middle state
+      const isScrollySection = ['build', 'ai', 'deploy'].includes(id);
+      const offset = isScrollySection ? window.innerHeight : 0;
+      window.scrollTo({ top: target.offsetTop + offset, behavior: "smooth" });
+      window.history.pushState(null, "", `#${id}`);
+    }
+  };
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 border-b ${
@@ -181,12 +194,13 @@ function Nav() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
         <div className="flex items-center gap-2 rounded-full px-4 py-2">
           <Logo />
+          <span className="font-display text-lg font-bold tracking-tight">DeployForge Dragend</span>
         </div>
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#build" className="transition hover:text-foreground">Build</a>
-          <a href="#ai" className="transition hover:text-foreground">AI</a>
-          <a href="#deploy" className="transition hover:text-foreground">Deploy</a>
-          <a href="#features" className="transition hover:text-foreground">Features</a>
+          <a href="#build" onClick={(e) => scrollToSection(e, 'build')} className="transition hover:text-foreground">Build</a>
+          <a href="#ai" onClick={(e) => scrollToSection(e, 'ai')} className="transition hover:text-foreground">AI</a>
+          <a href="#deploy" onClick={(e) => scrollToSection(e, 'deploy')} className="transition hover:text-foreground">Deploy</a>
+          <a href="#features" onClick={(e) => scrollToSection(e, 'features')} className="transition hover:text-foreground">Features</a>
         </nav>
         <a
           href="#start"
